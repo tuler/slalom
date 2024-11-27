@@ -1,6 +1,10 @@
 #include "draw.h"
 #include "game.h"
 
+#define abs(x) ((x) < 0 ? -(x) : (x))
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) < (b) ? (a) : (b))
+
 struct Game game_create(uint64_t gate_width)
 {
     struct Game game = {
@@ -19,7 +23,7 @@ struct Game game_create(uint64_t gate_width)
             {.x = 220, .y = 116, .color = 0, .mirror = 1},
         },
         .moguls_count = 2,
-        .skier = {.x = 128, .y = 0, .angle = 1, .sx = 0, .sy = 1},
+        .skier = {.x = 128.0f, .y = 0.0f, .angle = 1, .sx = 0.0f, .sy = 1.0f},
         .trees = {
             {.x = 10, .y = 30, .color = 0, .mirror = 1},
             {.x = 220, .y = 130, .color = 1, .mirror = 1},
@@ -36,10 +40,36 @@ void draw_palette()
     }
 }
 
+void game_move_left(struct Game *game)
+{
+    game->skier.angle = max(game->skier.angle - 1, -4);
+    if (game->skier.angle == 0)
+    {
+        game->skier.angle = -1;
+    }
+    game->skier.sx = (abs(game->skier.angle) - 1) * 0.5;
+    game->skier.sx = game->skier.angle < 0 ? -game->skier.sx : game->skier.sx;
+    game->skier.sy = (4 - abs(game->skier.angle)) * 0.5;
+    riv_printf("sy: %f\n", game->skier.sy);
+}
+
+void game_move_right(struct Game *game)
+{
+    game->skier.angle = min(game->skier.angle + 1, 4);
+    if (game->skier.angle == 0)
+    {
+        game->skier.angle = 1;
+    }
+    game->skier.sx = (abs(game->skier.angle) - 1) * 0.5;
+    game->skier.sx = game->skier.angle < 0 ? -game->skier.sx : game->skier.sx;
+    game->skier.sy = (4 - abs(game->skier.angle)) * 0.5;
+    riv_printf("sy: %f\n", game->skier.sy);
+}
+
 void game_update(struct Game *game)
 {
     // update x position
-    game->skier.x += game->skier.sx;
+    game->skier.x = min(max(game->skier.x + game->skier.sx, 0.0f), 256.0f - 16.0f);
 
     // update y position
     game->skier.y += game->skier.sy;
@@ -49,29 +79,19 @@ void game_start(struct Game *game)
 {
     do
     {
-        riv_clear(RIV_COLOR_WHITE);
+        if (riv->keys[RIV_GAMEPAD_LEFT].press)
+        {
+            game_move_left(game);
+        }
+        if (riv->keys[RIV_GAMEPAD_RIGHT].press)
+        {
+            game_move_right(game);
+        }
 
         game_update(game);
 
-        /*
-        draw_tree(20, 20, 0);
-        draw_tree(60, 20, 1);
-        draw_tree(100, 20, 2);
-        draw_tree(140, 20, 3);
-        draw_gate(100, 100, 32, 1);
-        draw_gate(128, 160, 32, 0);
-
-        draw_skier(80, 56, 0);
-        draw_skier(100, 56, 1);
-        draw_skier(120, 56, 2);
-        draw_skier(140, 56, 3);
-        draw_skier(160, 56, 4);
-
-        draw_mogul(110, 200, 0);
-        draw_mogul(140, 220, 1);
-        */
-
-        draw_palette();
+        riv_clear(RIV_COLOR_WHITE);
+        // draw_palette();
         draw_game(game);
 
     } while (riv_present());

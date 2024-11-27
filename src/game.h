@@ -9,25 +9,25 @@
 
 struct Skier
 {
-    uint64_t x;     // x-axis position
-    uint64_t y;     // y-axis position
-    uint64_t angle; // -4, -3, -2, -1, 1, 2, 3, 4 (0 is crash)
-    float sx;       // speed x-axis per frame
-    float sy;       // speed y-axis per frame
+    float x;       // x-axis position
+    float y;       // y-axis position
+    int64_t angle; // -4, -3, -2, -1, 1, 2, 3, 4 (0 is crash)
+    float sx;      // speed x-axis per frame
+    float sy;      // speed y-axis per frame
 };
 
 struct Tree
 {
-    uint64_t x;     // x-axis position
-    uint64_t y;     // y-axis position
+    int64_t x;      // x-axis position
+    int64_t y;      // y-axis position
     uint64_t color; // 0-3
     int64_t mirror; // 1 or -1
 };
 
 struct Mogul
 {
-    uint64_t x;     // x-axis position
-    uint64_t y;     // y-axis position
+    int64_t x;      // x-axis position
+    int64_t y;      // y-axis position
     uint64_t color; // 0-1
     int64_t mirror; // 1 or -1
 };
