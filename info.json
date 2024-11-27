@@ -1,0 +1,13 @@
+{
+  "name": "Slalom",
+  "summary": "A ski game",
+  "description": "Slalom is a ski game where the fastest you finish the course the more points you score.",
+  "tags": ["action", "slide"],
+  "authors": [
+    {
+      "name": "Danilo Tuler",
+      "link": "https://github.com/tuler"
+    }
+  ],
+  "links": ["https://github.com/tuler/slalom", "https://dtuler.itch.io/slalom"]
+}

@@ -1,0 +1,11 @@
+{
+  "C_Cpp.default.compilerPath": "/opt/homebrew/opt/llvm@15/bin/clang",
+  "files.associations": {
+    "*.hcl": "terraform",
+    "*.toml": "toml",
+    "*.ts": "typescript",
+    "*.sol": "solidity",
+    "draw.h": "c",
+    "riv.h": "c"
+  }
+}
