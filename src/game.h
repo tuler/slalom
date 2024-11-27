@@ -7,6 +7,10 @@
 #define MAX_TREES 256
 #define MAX_MOGULS 256
 
+#define abs(x) ((x) < 0 ? -(x) : (x))
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) < (b) ? (a) : (b))
+
 struct Skier
 {
     float x;       // x-axis position
@@ -37,6 +41,9 @@ struct Game
     uint64_t gate_width;
     uint64_t gate_start;
     uint64_t gate_spacing;
+
+    uint64_t gates_left;
+    uint64_t gates_missed;
 
     struct Skier skier;
 

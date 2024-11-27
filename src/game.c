@@ -1,10 +1,6 @@
 #include "draw.h"
 #include "game.h"
 
-#define abs(x) ((x) < 0 ? -(x) : (x))
-#define max(a, b) ((a) > (b) ? (a) : (b))
-#define min(a, b) ((a) < (b) ? (a) : (b))
-
 struct Game game_create(uint64_t gate_width)
 {
     struct Game game = {
@@ -29,15 +25,11 @@ struct Game game_create(uint64_t gate_width)
             {.x = 220, .y = 130, .color = 1, .mirror = 1},
         },
         .trees_count = 2};
-    return game;
-}
 
-void draw_palette()
-{
-    for (int i = 0; i < 32; i++)
-    {
-        riv_draw_rect_fill(i * 8, 0, 8, 8, i);
-    }
+    game.gates_left = game.gates_count;
+    game.gates_missed = 0;
+
+    return game;
 }
 
 void game_move_left(struct Game *game)
@@ -73,6 +65,17 @@ void game_update(struct Game *game)
 
     // update y position
     game->skier.y += game->skier.sy;
+
+    // count how many gates are left
+    for (size_t i = 0; i < game->gates_count; i++)
+    {
+        int64_t y = game->gate_start + i * game->gate_spacing;
+        if (y > game->skier.y)
+        {
+            game->gates_left = game->gates_count - i;
+            break;
+        }
+    }
 }
 
 void game_start(struct Game *game)

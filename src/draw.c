@@ -1,25 +1,38 @@
+#include <stdio.h>
 #include <riv.h>
 
-#include "color.h"
 #include "draw.h"
 #include "game.h"
 
 uint64_t img_id = 0;
 
 #define BASE_Y 48
-#define abs(x) ((x) < 0 ? -(x) : (x))
 
 void draw_init(const char *sprite)
 {
     riv_load_palette(sprite, 16);
-    // color_setup();
     img_id = riv_make_image(sprite, 0);
+}
+
+void draw_palette()
+{
+    for (int i = 0; i < 32; i++)
+    {
+        riv_draw_rect_fill(i * 8, 0, 8, 8, i);
+    }
 }
 
 void draw_tree(int64_t x0, int64_t y0, uint64_t color)
 {
     uint64_t sx0 = 48 + (color * 16);
     riv_draw_image_rect(img_id, x0, y0, 16, 32, sx0, 0, 2, 1);
+}
+
+void draw_gates(uint64_t gates_left)
+{
+    char buffer[32];
+    snprintf(buffer, sizeof(buffer), "%lu", gates_left);
+    riv_draw_text(buffer, RIV_SPRITESHEET_FONT_5X7, RIV_CENTER, 128, 16, 2, RIV_COLOR_BLACK);
 }
 
 /**
@@ -68,4 +81,6 @@ void draw_game(struct Game *game)
     {
         draw_mogul(game->moguls[i].x, game->moguls[i].y + BASE_Y + dy, game->moguls[i].color);
     }
+
+    draw_gates(game->gates_left);
 }

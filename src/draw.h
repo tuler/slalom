@@ -7,6 +7,8 @@
 
 void draw_init(const char *sprite);
 
+void draw_palette();
+
 void draw_tree(int64_t x0, int64_t y0, uint64_t color);
 
 void draw_gate(int64_t x0, int64_t y0, uint64_t w, uint64_t color);
