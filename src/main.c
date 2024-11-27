@@ -22,7 +22,7 @@ static struct option long_options[] = {
 struct Options parse_args(int argc, char **argv)
 {
     struct Options opts = {
-        .gate_width = 32,
+        .gate_width = 48,
         .level = 0,
         .file = "levels.txt"};
 
