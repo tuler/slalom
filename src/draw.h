@@ -3,6 +3,8 @@
 
 #include <riv.h>
 
+#include "game.h"
+
 void draw_init(const char *sprite);
 
 void draw_tree(uint64_t x0, uint64_t y0, uint64_t color);
@@ -13,6 +15,6 @@ void draw_skier(uint64_t x0, uint64_t y0, uint64_t pos);
 
 void draw_mogul(uint64_t x0, uint64_t y0, uint64_t color);
 
-void draw_map();
+void draw_game(struct Game *game);
 
 #endif

@@ -1,11 +1,30 @@
 #include "draw.h"
 #include "game.h"
 
-struct Game game_create(uint64_t game_width)
+struct Game game_create(uint64_t gate_width)
 {
     struct Game game = {
-        .game_width = game_width,
-    };
+        .gate_spacing = 96,
+        .gate_start = 64,
+        .gate_width = gate_width,
+        .gates = {
+            120,
+            145,
+            120,
+            80,
+            60},
+        .gates_count = 5,
+        .moguls = {
+            {.x = 20, .y = 100, .color = 0, .mirror = 1},
+            {.x = 220, .y = 116, .color = 0, .mirror = 1},
+        },
+        .moguls_count = 2,
+        .skier = {.x = 128, .y = 0, .angle = 1, .sx = 0, .sy = 1},
+        .trees = {
+            {.x = 10, .y = 30, .color = 0, .mirror = 1},
+            {.x = 220, .y = 130, .color = 1, .mirror = 1},
+        },
+        .trees_count = 2};
     return game;
 }
 
@@ -17,12 +36,24 @@ void draw_palette()
     }
 }
 
+void game_update(struct Game *game)
+{
+    // update x position
+    game->skier.x += game->skier.sx;
+
+    // update y position
+    game->skier.y += game->skier.sy;
+}
+
 void game_start(struct Game *game)
 {
     do
     {
         riv_clear(RIV_COLOR_WHITE);
 
+        game_update(game);
+
+        /*
         draw_tree(20, 20, 0);
         draw_tree(60, 20, 1);
         draw_tree(100, 20, 2);
@@ -38,13 +69,10 @@ void game_start(struct Game *game)
 
         draw_mogul(110, 200, 0);
         draw_mogul(140, 220, 1);
+        */
 
         draw_palette();
+        draw_game(game);
 
-        // draw_map();
-        // draw_skier();
-        // draw_gate();
-        // draw_tree();
-        // riv_flip();
     } while (riv_present());
 }
