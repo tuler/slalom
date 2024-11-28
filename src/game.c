@@ -167,11 +167,17 @@ void game_update(struct Game *game)
 
         // write time left as the score
         game_write_score(game->time_left, game->gates_missed);
+
+        // quit after 3 seconds
+        riv->quit_frame = riv->frame + riv->target_fps * 3;
     }
 
     if (game->time_left <= 0)
     {
         game->over = true;
+
+        // quit after 3 seconds
+        riv->quit_frame = riv->frame + riv->target_fps * 3;
     }
 
     // update skier position
