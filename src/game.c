@@ -2,7 +2,8 @@
 #include "draw.h"
 #include "game.h"
 
-#define GATE_PENALTY 5000 // time penalty (ms) for missing a gate
+#define GATE_PENALTY 5000  // time penalty (ms) for missing a gate
+#define CRASH_PENALTY 1000 // time penalty (ms) for crashing
 
 struct Game game_create(uint64_t gate_width, uint64_t time_per_gate)
 {
@@ -25,7 +26,7 @@ struct Game game_create(uint64_t gate_width, uint64_t time_per_gate)
         .moguls_count = 2,
         .next_gate = 0,
         .over = false,
-        .skier = {.x = 128.0f, .y = 0.0f, .angle = 1, .sx = 0.0f, .sy = 1.0f},
+        .skier = {.x = 128.0f, .y = 0.0f, .angle = 1, .sx = 0.0f, .sy = 1.5f},
         .started = true,
         .trees = {
             {.x = 10, .y = 30, .color = 0, .mirror = 1},
@@ -34,6 +35,7 @@ struct Game game_create(uint64_t gate_width, uint64_t time_per_gate)
         .trees_count = 2};
 
     game.time_left = game.max_time = time_per_gate * game.gates_count;
+    game.skier.sy = (4 - abs(game.skier.angle)) * 0.5;
     return game;
 }
 
@@ -81,11 +83,20 @@ void game_update(struct Game *game)
         return;
     }
 
-    if (riv->keys[RIV_GAMEPAD_LEFT].press)
+    if (game->skier.angle == 0) // skiier crashed
+    {
+        if (riv->time_ms > game->crash_recover) // time to stand up
+        {
+            game->skier.angle = 1; // point down the hill
+            game->skier.sx = 0;    // no side moveme
+            game->skier.sy = 1.5;  // full speed
+        }
+    }
+    else if (riv->keys[RIV_GAMEPAD_LEFT].press)
     {
         game_move_left(game);
     }
-    if (riv->keys[RIV_GAMEPAD_RIGHT].press)
+    else if (riv->keys[RIV_GAMEPAD_RIGHT].press)
     {
         game_move_right(game);
     }
@@ -99,6 +110,11 @@ void game_update(struct Game *game)
     // check tree collision
     for (size_t i = 0; i < game->trees_count; i++)
     {
+        if (game->trees[i].hit)
+        {
+            continue; // skip hit trees
+        }
+
         struct Rect skier_rect = {
             .x = next_x,
             .y = next_y + 10, // only collide with lower body part
@@ -112,10 +128,12 @@ void game_update(struct Game *game)
 
         if (collision_rects(skier_rect, tree_rect))
         {
-            game->over = true;
-            game->skier.angle = 0;
-            game_write_score(0, game->gates_missed);
-            return;
+            // skier crashed
+            game->trees[i].hit = true;                          // mark tree as hit, so we don't hit it again
+            game->skier.angle = 0;                              // crash position
+            game->skier.sx = 0;                                 // no side movement
+            game->skier.sy = 0;                                 // no down movement
+            game->crash_recover = riv->time_ms + CRASH_PENALTY; // set time to recover
         }
     }
 
@@ -140,7 +158,7 @@ void game_update(struct Game *game)
     }
 
     // calculate time left, accounting for penalties of missed gates
-    game->time_left = game->max_time - (riv->time_ms - game->start_time) - game->gates_missed * GATE_PENALTY;
+    game->time_left = max(game->max_time - (riv->time_ms - game->start_time) - game->gates_missed * GATE_PENALTY, 0);
 
     if (game->next_gate == game->gates_count)
     {

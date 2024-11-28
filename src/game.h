@@ -27,6 +27,7 @@ struct Tree
     int64_t y;      // y-axis position
     uint64_t color; // 0-3
     int64_t mirror; // 1 or -1
+    bool hit;       // true if skier has hit the tree
 };
 
 struct Mogul
@@ -48,8 +49,9 @@ struct Game
     uint64_t start_time;             // time game started
     bool over;                       // true if game is over
     uint64_t max_time;               // maximum time in milliseconds
-    uint64_t time_left;              // time left in milliseconds
+    int64_t time_left;               // time left in milliseconds
     struct Skier skier;              // skier structure
+    uint64_t crash_recover;          // time skier will recover from crash
     uint64_t gates[MAX_GATES];       // x-axis positions of gates
     size_t gates_count;              // number of gates
     struct Tree trees[MAX_TREES];    // tree structures
