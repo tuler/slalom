@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "collision.h"
 #include "draw.h"
 #include "game.h"
@@ -5,37 +9,98 @@
 #define GATE_PENALTY 5000  // time penalty (ms) for missing a gate
 #define CRASH_PENALTY 1000 // time penalty (ms) for crashing
 
-struct Game game_create(uint64_t gate_width, uint64_t time_per_gate)
+void game_load_file(const char *file, struct Game *game)
+{
+    // open track file
+    FILE *f = fopen(file, "r");
+    if (!f)
+    {
+        fprintf(stderr, "error opening file %s\n", file);
+        exit(1);
+    }
+
+    // first line of file is list of x-coordinates of gates
+    char line[1024];
+    if (fgets(line, sizeof(line), f))
+    {
+        char *token = strtok(line, " ");
+        game->gates_count = 0;
+
+        while (token && game->gates_count < MAX_GATES)
+        {
+            game->gates[game->gates_count++] = atoi(token);
+            token = strtok(NULL, " ");
+        }
+    }
+
+    // second line of file is a list of x and y pair of tree coordinates
+    if (fgets(line, sizeof(line), f))
+    {
+        char *token = strtok(line, " ");
+        game->trees_count = 0;
+
+        while (token && game->trees_count < MAX_TREES)
+        {
+            game->trees[game->trees_count].x = atoi(token);
+            token = strtok(NULL, " ");
+            game->trees[game->trees_count].y = atoi(token);
+
+            // randomize tree color
+            game->trees[game->trees_count].color = riv_rand() % 4;
+
+            // randomize tree mirror
+            game->trees[game->trees_count].mirror = (riv_rand() % 2) == 0 ? -1 : 1;
+
+            game->trees_count++;
+            token = strtok(NULL, " ");
+        }
+    }
+
+    // third line of file is a list of x and y pair of mogul coordinates
+    if (fgets(line, sizeof(line), f))
+    {
+        char *token = strtok(line, " ");
+        game->moguls_count = 0;
+
+        while (token && game->moguls_count < MAX_MOGULS)
+        {
+            game->moguls[game->moguls_count].x = atoi(token);
+            token = strtok(NULL, " ");
+            game->moguls[game->moguls_count].y = atoi(token);
+
+            // randomize mogul color
+            game->moguls[game->moguls_count].color = riv_rand() % 2;
+
+            // randomize mogul mirror
+            game->moguls[game->moguls_count].mirror = (riv_rand() % 2) == 0 ? -1 : 1;
+
+            game->moguls_count++;
+            token = strtok(NULL, " ");
+        }
+    }
+
+    fclose(f);
+}
+
+struct Game game_create(const char *file, uint64_t gate_width, uint64_t time_per_gate)
 {
     struct Game game = {
         .gate_spacing = 96,
         .gate_start = 64,
         .gate_width = gate_width,
-        .gates = {
-            120,
-            145,
-            120,
-            80,
-            60},
-        .gates_count = 5,
         .gates_missed = 0,
-        .moguls = {
-            {.x = 20, .y = 100, .color = 0, .mirror = 1},
-            {.x = 220, .y = 116, .color = 0, .mirror = 1},
-        },
-        .moguls_count = 2,
         .next_gate = 0,
         .over = false,
         .skier = {.x = 128.0f, .y = 0.0f, .angle = 1, .sx = 0.0f, .sy = 1.5f},
-        .started = true,
-        .trees = {
-            {.x = 10, .y = 30, .color = 0, .mirror = 1},
-            {.x = 220, .y = 130, .color = 1, .mirror = 1},
-        },
-        .trees_count = 2};
+        .started = true};
 
+    // load track file
+    game_load_file(file, &game);
+
+    // initialize game state
     game.time_left = game.max_time = time_per_gate * game.gates_count;
-    game.skier.sy = (4 - abs(game.skier.angle)) * 0.5;
+    // game.skier.sy = (4 - abs(game.skier.angle)) * 0.5;
+
     return game;
 }
 

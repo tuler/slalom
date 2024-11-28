@@ -60,7 +60,7 @@ struct Game
     size_t moguls_count;             // number of moguls
 };
 
-struct Game game_create(uint64_t gate_width, uint64_t time_per_gate);
+struct Game game_create(const char *file, uint64_t gate_width, uint64_t time_per_gate);
 
 void game_start(struct Game *game);
 

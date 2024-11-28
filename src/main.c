@@ -17,20 +17,18 @@ struct Options
 static struct option long_options[] = {
     {"gate_width", required_argument, 0, 'g'},
     {"time_per_gate", required_argument, 0, 't'},
-    {"level", required_argument, 0, 'l'},
     {"file", required_argument, 0, 'f'},
     {0, 0, 0, 0}};
 
 struct Options parse_args(int argc, char **argv)
 {
     struct Options opts = {
-        .file = "map.txt",
+        .file = "track.txt",
         .gate_width = 48,
-        .level = 0,
         .time_per_gate = 5000};
 
     int opt;
-    while ((opt = getopt_long(argc, (char *const *)argv, "g:t:l:f:", long_options, NULL)) != -1)
+    while ((opt = getopt_long(argc, (char *const *)argv, "g:t:f:", long_options, NULL)) != -1)
     {
         switch (opt)
         {
@@ -40,14 +38,11 @@ struct Options parse_args(int argc, char **argv)
         case 't':
             opts.time_per_gate = atoi(optarg);
             break;
-        case 'l':
-            opts.level = atoi(optarg);
-            break;
         case 'f':
             opts.file = optarg;
             break;
         default:
-            fprintf(stderr, "Usage: %s [--gate-width w] [--time-per-gate t] [--level n] [--file path]\n", argv[0]);
+            fprintf(stderr, "Usage: %s [--gate-width w] [--time-per-gate t] [--file path]\n", argv[0]);
             exit(1);
         }
     }
@@ -60,33 +55,14 @@ int main(int argc, char *argv[])
     riv->height = 256;
     riv->target_fps = 60;
 
-    // customize palette
-    // color_setup();
-
     // parse options
     struct Options opts = parse_args(argc, argv);
-
-    // load levels file
-    /*
-    struct Levels levels;
-    if (riv->incard_len > 0)
-    {
-        level_load_incard(&levels, opts.level);
-    }
-    else
-    {
-        level_load_file(&levels, opts.file, opts.level);
-    }
-    */
 
     // initialize draw module
     draw_init("sprite.png");
 
     // create and start the game
     // struct Game game = game_create(&levels, opts.gate_width);
-    struct Game game = game_create(opts.gate_width, opts.time_per_gate);
+    struct Game game = game_create(opts.file, opts.gate_width, opts.time_per_gate);
     game_start(&game);
-
-    // free up dynamic allocated resources
-    // level_free(&levels);
 }

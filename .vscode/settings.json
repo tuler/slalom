@@ -19,6 +19,7 @@
     "string_view": "c",
     "variant": "c",
     "vector": "c",
-    "game.h": "c"
+    "game.h": "c",
+    "collision.h": "c"
   }
 }
