@@ -42,8 +42,11 @@ struct Game
     uint64_t gate_start;
     uint64_t gate_spacing;
 
-    uint64_t gates_left;
     uint64_t gates_missed;
+    size_t next_gate;
+
+    bool started;
+    bool over;
 
     struct Skier skier;
 

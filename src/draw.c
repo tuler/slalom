@@ -82,5 +82,5 @@ void draw_game(struct Game *game)
         draw_mogul(game->moguls[i].x, game->moguls[i].y + BASE_Y + dy, game->moguls[i].color);
     }
 
-    draw_gates(game->gates_left);
+    draw_gates(game->gates_count - game->next_gate);
 }
