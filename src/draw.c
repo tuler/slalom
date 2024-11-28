@@ -83,6 +83,11 @@ void draw_mogul(int64_t x0, int64_t y0, uint64_t color, int64_t mirror)
 void draw_game(struct Game *game)
 {
     int64_t dy = -(int64_t)game->skier.y;
+    for (size_t i = 0; i < game->moguls_count; i++)
+    {
+        draw_mogul(game->moguls[i].x, game->moguls[i].y + BASE_Y + dy, game->moguls[i].color, game->moguls[i].mirror);
+    }
+
     draw_skier((int64_t)game->skier.x, BASE_Y, game->skier.angle);
 
     for (size_t i = 0; i < game->gates_count; i++)
@@ -95,11 +100,6 @@ void draw_game(struct Game *game)
     for (size_t i = 0; i < game->trees_count; i++)
     {
         draw_tree(game->trees[i].x, game->trees[i].y + BASE_Y + dy, game->trees[i].color, game->trees[i].mirror);
-    }
-
-    for (size_t i = 0; i < game->moguls_count; i++)
-    {
-        draw_mogul(game->moguls[i].x, game->moguls[i].y + BASE_Y + dy, game->moguls[i].color, game->moguls[i].mirror);
     }
 
     draw_gates(game->gates_count - game->next_gate);
