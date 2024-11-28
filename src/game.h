@@ -38,29 +38,26 @@ struct Mogul
 
 struct Game
 {
-    uint64_t gate_width;
-    uint64_t gate_start;
-    uint64_t gate_spacing;
-
-    uint64_t gates_missed;
-    size_t next_gate;
-
-    bool started;
-    bool over;
-
-    struct Skier skier;
-
-    uint64_t gates[MAX_GATES]; // x-axis positions of gates
-    size_t gates_count;
-
-    struct Tree trees[MAX_TREES]; // tree structures
-    size_t trees_count;
-
-    struct Mogul moguls[MAX_MOGULS]; // tree structures
-    size_t moguls_count;
+    uint64_t gate_width;             // distance between gate poles
+    uint64_t gate_start;             // y-axis position of first gate
+    uint64_t gate_spacing;           // vertical distance between gates
+    uint64_t gates_missed;           // number of gates missed
+    size_t next_gate;                // index of next gate
+    bool started;                    // true if game has started
+    uint64_t start_time;             // time game started
+    bool over;                       // true if game is over
+    uint64_t max_time;               // maximum time in milliseconds
+    uint64_t time_left;              // time left in milliseconds
+    struct Skier skier;              // skier structure
+    uint64_t gates[MAX_GATES];       // x-axis positions of gates
+    size_t gates_count;              // number of gates
+    struct Tree trees[MAX_TREES];    // tree structures
+    size_t trees_count;              // number of trees
+    struct Mogul moguls[MAX_MOGULS]; // mogul structures
+    size_t moguls_count;             // number of moguls
 };
 
-struct Game game_create(uint64_t gate_width);
+struct Game game_create(uint64_t gate_width, uint64_t time_per_gate);
 
 void game_start(struct Game *game);
 

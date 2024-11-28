@@ -35,6 +35,26 @@ void draw_gates(uint64_t gates_left)
     riv_draw_text(buffer, RIV_SPRITESHEET_FONT_5X7, RIV_CENTER, 128, 16, 2, RIV_COLOR_BLACK);
 }
 
+void draw_time_left(uint64_t time_left)
+{
+    char buffer[64];
+    uint64_t minutes = time_left / (60 * 1000);
+    uint64_t seconds = (time_left % (60 * 1000)) / 1000;
+    uint64_t ms = time_left % 1000;
+
+    // format milliseconds to minutes, seconds and milliseconds
+    if (minutes > 0)
+    {
+        snprintf(buffer, sizeof(buffer), "%lu:%02lu.%03lu", minutes, seconds, ms);
+    }
+    else
+    {
+        snprintf(buffer, sizeof(buffer), "%lu.%03lu", seconds, ms);
+    }
+
+    riv_draw_text(buffer, RIV_SPRITESHEET_FONT_5X7, RIV_CENTER, 128, 32, 1, RIV_COLOR_BLACK);
+}
+
 /**
  * color = 0: red
  * color = 1: blue
@@ -83,4 +103,5 @@ void draw_game(struct Game *game)
     }
 
     draw_gates(game->gates_count - game->next_gate);
+    draw_time_left(game->time_left);
 }

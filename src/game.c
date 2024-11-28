@@ -2,7 +2,9 @@
 #include "draw.h"
 #include "game.h"
 
-struct Game game_create(uint64_t gate_width)
+#define GATE_PENALTY 5000 // time penalty (ms) for missing a gate
+
+struct Game game_create(uint64_t gate_width, uint64_t time_per_gate)
 {
     struct Game game = {
         .gate_spacing = 96,
@@ -31,6 +33,7 @@ struct Game game_create(uint64_t gate_width)
         },
         .trees_count = 2};
 
+    game.time_left = game.max_time = time_per_gate * game.gates_count;
     return game;
 }
 
@@ -56,6 +59,15 @@ void game_move_right(struct Game *game)
     game->skier.sx = (abs(game->skier.angle) - 1) * 0.5;
     game->skier.sx = game->skier.angle < 0 ? -game->skier.sx : game->skier.sx;
     game->skier.sy = (4 - abs(game->skier.angle)) * 0.5;
+}
+
+void game_write_score(uint64_t score, uint64_t gates_missed)
+{
+    riv->outcard_len = riv_snprintf(
+        (char *)riv->outcard, RIV_SIZE_OUTCARD,
+        "JSON{\"score\":%d,\"gates_missed\":%d}",
+        score,
+        gates_missed);
 }
 
 void game_update(struct Game *game)
@@ -95,31 +107,40 @@ void game_update(struct Game *game)
         struct Line gate_line = {
             .a = {.x = game->gates[game->next_gate] - game->gate_width / 2, .y = gate_y},
             .b = {.x = game->gates[game->next_gate] + game->gate_width / 2, .y = gate_y}};
+
         if (!collision_lines(skier_line, gate_line))
         {
             // missed gate
-            riv_printf("missed gate %lu\n", game->next_gate);
             game->gates_missed++;
-        }
-        else
-        {
-            // passed gate
-            riv_printf("passed gate %lu\n", game->next_gate);
         }
         game->next_gate++;
 
         if (game->next_gate == game->gates_count)
         {
             game->over = true;
+
+            // write time left as the score
+            game_write_score(game->time_left, game->gates_missed);
         }
     }
 
+    // calculate time left, accounting for penalties of missed gates
+    game->time_left = game->max_time - (riv->time_ms - game->start_time) - game->gates_missed * GATE_PENALTY;
+    if (game->time_left <= 0)
+    {
+        game->over = true;
+    }
+
+    // update skier position
     game->skier.x = next_x;
     game->skier.y = next_y;
 }
 
 void game_start(struct Game *game)
 {
+    game_write_score(0, 0);
+    game->started = true;
+    game->start_time = riv->time_ms;
     do
     {
         game_update(game);
