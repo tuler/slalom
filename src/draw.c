@@ -53,9 +53,9 @@ void draw_time_left(uint64_t time_left)
  * color = 0: red
  * color = 1: blue
  */
-void draw_gate(int64_t x0, int64_t y0, uint64_t w, uint64_t color)
+void draw_gate(int64_t x0, int64_t y0, uint64_t w, uint64_t color, bool disabled)
 {
-    uint64_t sx0 = 40;
+    uint64_t sx0 = disabled ? 48 : 40;
     uint64_t sy0 = color * 16;
     riv_draw_image_rect(img_id, x0 - w / 2, y0, 8, 16, sx0, sy0, PIXEL_WIDTH, 1);
     riv_draw_image_rect(img_id, x0 + w / 2, y0, 8, 16, sx0, sy0, PIXEL_WIDTH, 1);
@@ -70,7 +70,7 @@ void draw_skier(int64_t x0, int64_t y0, int64_t angle)
 
 void draw_tree(int64_t x0, int64_t y0, uint64_t color, int64_t mirror)
 {
-    uint64_t sx0 = 48 + (color * 16);
+    uint64_t sx0 = 64 + (color * 16);
     riv_draw_image_rect(img_id, x0, y0, 16, 32, sx0, 0, PIXEL_WIDTH * mirror, 1);
 }
 
@@ -89,7 +89,7 @@ void draw_game(struct Game *game)
     {
         int64_t y = BASE_Y + dy + game->gate_start + (i * game->gate_spacing);
         uint64_t color = i == game->gates_count - 1 ? 0 : 1;
-        draw_gate(game->gates[i], y, game->gate_width, color);
+        draw_gate(game->gates[i].x, y, game->gate_width, color, game->gates[i].missed);
     }
 
     for (size_t i = 0; i < game->trees_count; i++)

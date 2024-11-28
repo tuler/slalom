@@ -28,7 +28,9 @@ void game_load_file(const char *file, struct Game *game)
 
         while (token && game->gates_count < MAX_GATES)
         {
-            game->gates[game->gates_count++] = atoi(token);
+            game->gates[game->gates_count].x = atoi(token);
+            game->gates[game->gates_count].missed = false;
+            game->gates_count++;
             token = strtok(NULL, " ");
         }
     }
@@ -211,12 +213,13 @@ void game_update(struct Game *game)
             .a = {.x = game->skier.x, .y = game->skier.y},
             .b = {.x = next_x, .y = next_y}};
         struct Line gate_line = {
-            .a = {.x = game->gates[game->next_gate] - game->gate_width / 2, .y = gate_y},
-            .b = {.x = game->gates[game->next_gate] + game->gate_width / 2, .y = gate_y}};
+            .a = {.x = game->gates[game->next_gate].x - game->gate_width / 2, .y = gate_y},
+            .b = {.x = game->gates[game->next_gate].x + game->gate_width / 2, .y = gate_y}};
 
         if (!collision_lines(skier_line, gate_line))
         {
             // missed gate
+            game->gates[game->next_gate].missed = true;
             game->gates_missed++;
         }
         game->next_gate++;

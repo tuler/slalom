@@ -21,6 +21,12 @@ struct Skier
     float sy;      // speed y-axis per frame
 };
 
+struct Gate
+{
+    int64_t x;   // x-axis position
+    bool missed; // true if skier missed the gate
+};
+
 struct Tree
 {
     int64_t x;      // x-axis position
@@ -52,7 +58,7 @@ struct Game
     int64_t time_left;               // time left in milliseconds
     struct Skier skier;              // skier structure
     uint64_t crash_recover;          // time skier will recover from crash
-    uint64_t gates[MAX_GATES];       // x-axis positions of gates
+    struct Gate gates[MAX_GATES];    // gate structures
     size_t gates_count;              // number of gates
     struct Tree trees[MAX_TREES];    // tree structures
     size_t trees_count;              // number of trees
