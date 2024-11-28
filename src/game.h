@@ -6,6 +6,7 @@
 #define MAX_GATES 256
 #define MAX_TREES 256
 #define MAX_MOGULS 256
+#define PIXEL_WIDTH 2
 
 #define abs(x) ((x) < 0 ? -(x) : (x))
 #define max(a, b) ((a) > (b) ? (a) : (b))

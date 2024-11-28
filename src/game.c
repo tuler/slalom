@@ -96,6 +96,29 @@ void game_update(struct Game *game)
     // update y position
     float next_y = game->skier.y + game->skier.sy;
 
+    // check tree collision
+    for (size_t i = 0; i < game->trees_count; i++)
+    {
+        struct Rect skier_rect = {
+            .x = next_x,
+            .y = next_y + 10, // only collide with lower body part
+            .w = 8 * PIXEL_WIDTH,
+            .h = 10}; // only collide with lower body part
+        struct Rect tree_rect = {
+            .x = game->trees[i].x,
+            .y = game->trees[i].y + 24, // only collide with base of the tree
+            .w = 16 * PIXEL_WIDTH,
+            .h = 8}; // only collide with base of the tree
+
+        if (collision_rects(skier_rect, tree_rect))
+        {
+            game->over = true;
+            game->skier.angle = 0;
+            game_write_score(0, game->gates_missed);
+            return;
+        }
+    }
+
     // check if crossed gate
     int64_t gate_y = game->gate_start + game->next_gate * game->gate_spacing;
     if (next_y >= gate_y)
@@ -114,18 +137,20 @@ void game_update(struct Game *game)
             game->gates_missed++;
         }
         game->next_gate++;
-
-        if (game->next_gate == game->gates_count)
-        {
-            game->over = true;
-
-            // write time left as the score
-            game_write_score(game->time_left, game->gates_missed);
-        }
     }
 
     // calculate time left, accounting for penalties of missed gates
     game->time_left = game->max_time - (riv->time_ms - game->start_time) - game->gates_missed * GATE_PENALTY;
+
+    if (game->next_gate == game->gates_count)
+    {
+        // crossed all gates
+        game->over = true;
+
+        // write time left as the score
+        game_write_score(game->time_left, game->gates_missed);
+    }
+
     if (game->time_left <= 0)
     {
         game->over = true;

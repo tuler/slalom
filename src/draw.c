@@ -22,12 +22,6 @@ void draw_palette()
     }
 }
 
-void draw_tree(int64_t x0, int64_t y0, uint64_t color)
-{
-    uint64_t sx0 = 48 + (color * 16);
-    riv_draw_image_rect(img_id, x0, y0, 16, 32, sx0, 0, 2, 1);
-}
-
 void draw_gates(uint64_t gates_left)
 {
     char buffer[32];
@@ -37,7 +31,7 @@ void draw_gates(uint64_t gates_left)
 
 void draw_time_left(uint64_t time_left)
 {
-    char buffer[64];
+    char buffer[256];
     uint64_t minutes = time_left / (60 * 1000);
     uint64_t seconds = (time_left % (60 * 1000)) / 1000;
     uint64_t ms = time_left % 1000;
@@ -63,21 +57,27 @@ void draw_gate(int64_t x0, int64_t y0, uint64_t w, uint64_t color)
 {
     uint64_t sx0 = 40;
     uint64_t sy0 = color * 16;
-    riv_draw_image_rect(img_id, x0 - w / 2, y0, 8, 16, sx0, sy0, 2, 1);
-    riv_draw_image_rect(img_id, x0 + w / 2, y0, 8, 16, sx0, sy0, 2, 1);
+    riv_draw_image_rect(img_id, x0 - w / 2, y0, 8, 16, sx0, sy0, PIXEL_WIDTH, 1);
+    riv_draw_image_rect(img_id, x0 + w / 2, y0, 8, 16, sx0, sy0, PIXEL_WIDTH, 1);
 }
 
 void draw_skier(int64_t x0, int64_t y0, int64_t angle)
 {
     uint64_t sx0 = (4 - abs(angle)) * 8;
-    int64_t mw = angle < 0 ? -2 : 2;
-    riv_draw_image_rect(img_id, x0, y0, 8, 20, sx0, 0, mw, 1);
+    int64_t r = angle < 0 ? -1 : 1;
+    riv_draw_image_rect(img_id, x0, y0, 8, 20, sx0, 0, r * PIXEL_WIDTH, 1);
 }
 
-void draw_mogul(int64_t x0, int64_t y0, uint64_t color)
+void draw_tree(int64_t x0, int64_t y0, uint64_t color, int64_t mirror)
+{
+    uint64_t sx0 = 48 + (color * 16);
+    riv_draw_image_rect(img_id, x0, y0, 16, 32, sx0, 0, PIXEL_WIDTH * mirror, 1);
+}
+
+void draw_mogul(int64_t x0, int64_t y0, uint64_t color, int64_t mirror)
 {
     uint64_t sx0 = (color * 16);
-    riv_draw_image_rect(img_id, x0, y0, 16, 8, sx0, 24, 2, 1);
+    riv_draw_image_rect(img_id, x0, y0, 16, 8, sx0, 24, PIXEL_WIDTH * mirror, 1);
 }
 
 void draw_game(struct Game *game)
@@ -94,12 +94,12 @@ void draw_game(struct Game *game)
 
     for (size_t i = 0; i < game->trees_count; i++)
     {
-        draw_tree(game->trees[i].x, game->trees[i].y + BASE_Y + dy, game->trees[i].color);
+        draw_tree(game->trees[i].x, game->trees[i].y + BASE_Y + dy, game->trees[i].color, game->trees[i].mirror);
     }
 
     for (size_t i = 0; i < game->moguls_count; i++)
     {
-        draw_mogul(game->moguls[i].x, game->moguls[i].y + BASE_Y + dy, game->moguls[i].color);
+        draw_mogul(game->moguls[i].x, game->moguls[i].y + BASE_Y + dy, game->moguls[i].color, game->moguls[i].mirror);
     }
 
     draw_gates(game->gates_count - game->next_gate);
