@@ -5,6 +5,7 @@
 #include "collision.h"
 #include "draw.h"
 #include "game.h"
+#include "sfx.h"
 
 #define GATE_PENALTY 5000  // time penalty (ms) for missing a gate
 #define CRASH_PENALTY 1000 // time penalty (ms) for crashing
@@ -201,6 +202,7 @@ void game_update(struct Game *game)
             game->skier.sx = 0;                                 // no side movement
             game->skier.sy = 0;                                 // no down movement
             game->crash_recover = riv->time_ms + CRASH_PENALTY; // set time to recover
+            sfx_crash();
         }
     }
 
@@ -221,6 +223,11 @@ void game_update(struct Game *game)
             // missed gate
             game->gates[game->next_gate].missed = true;
             game->gates_missed++;
+            sfx_gate_miss();
+        }
+        else
+        {
+            sfx_gate_pass();
         }
         game->next_gate++;
     }
@@ -238,6 +245,9 @@ void game_update(struct Game *game)
 
         // quit after 3 seconds
         riv->quit_frame = riv->frame + riv->target_fps * 3;
+
+        // play sfx
+        sfx_game_over();
     }
 
     if (game->time_left <= 0)
@@ -246,6 +256,9 @@ void game_update(struct Game *game)
 
         // quit after 3 seconds
         riv->quit_frame = riv->frame + riv->target_fps * 3;
+
+        // play sfx
+        sfx_game_over();
     }
 
     // update skier position
@@ -258,6 +271,10 @@ void game_start(struct Game *game)
     game_write_score(0, 0);
     game->started = true;
     game->start_time = riv->time_ms;
+
+    // play start sfx
+    sfx_game_start();
+
     do
     {
         game_update(game);
