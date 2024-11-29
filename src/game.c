@@ -107,6 +107,27 @@ struct Game game_create(const char *file, uint64_t gate_width, uint64_t time_per
     return game;
 }
 
+void calculate_skier_speed(struct Skier *skier)
+{
+    switch (abs(skier->angle))
+    {
+    case 1:
+        skier->sx = 0;
+        break;
+    case 2:
+        skier->sx = 0.5;
+        break;
+    case 3:
+        skier->sx = 1;
+        break;
+    case 4:
+        skier->sx = 0.5;
+        break;
+    }
+    skier->sx = skier->angle < 0 ? -skier->sx : skier->sx;
+    skier->sy = (4 - abs(skier->angle)) * 0.5;
+}
+
 void game_move_left(struct Game *game)
 {
     game->skier.angle = max(game->skier.angle - 1, -4);
@@ -114,9 +135,7 @@ void game_move_left(struct Game *game)
     {
         game->skier.angle = -1;
     }
-    game->skier.sx = (abs(game->skier.angle) - 1) * 0.5;
-    game->skier.sx = game->skier.angle < 0 ? -game->skier.sx : game->skier.sx;
-    game->skier.sy = (4 - abs(game->skier.angle)) * 0.5;
+    calculate_skier_speed(&game->skier);
 }
 
 void game_move_right(struct Game *game)
@@ -126,9 +145,7 @@ void game_move_right(struct Game *game)
     {
         game->skier.angle = 1;
     }
-    game->skier.sx = (abs(game->skier.angle) - 1) * 0.5;
-    game->skier.sx = game->skier.angle < 0 ? -game->skier.sx : game->skier.sx;
-    game->skier.sy = (4 - abs(game->skier.angle)) * 0.5;
+    calculate_skier_speed(&game->skier);
 }
 
 void game_write_score(uint64_t score, uint64_t gates_missed)
