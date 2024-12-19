@@ -252,13 +252,13 @@ void game_update(struct Game *game)
     // calculate time left, accounting for penalties of missed gates
     game->time_left = max(game->max_time - (riv->time_ms - game->start_time) - game->gates_missed * GATE_PENALTY, 0);
 
+    // write time left as the score
+    game_write_score(game->time_left, game->gates_missed);
+
     if (game->next_gate == game->gates_count)
     {
         // crossed all gates
         game->over = true;
-
-        // write time left as the score
-        game_write_score(game->time_left, game->gates_missed);
 
         // quit after 3 seconds
         riv->quit_frame = riv->frame + riv->target_fps * 3;
